@@ -1,0 +1,45 @@
+name: Generate uBlacklist Subscription
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: "0 6 * * *"
+  push:
+    branches: [main]
+    paths: ["sources.txt", ".github/workflows/generate.yml"]
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Generate blocklist
+        run: |
+          python generate_blocklist.py --sources sources.txt --output blocklist.txt
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add blocklist.txt
+
+          # Only commit if there are changes
+          if ! git diff --cached --quiet; then
+            git commit -m "Update blocklist $(date -I)"
+            git push
+          else
+            echo "No changes to commit"
+          fi
