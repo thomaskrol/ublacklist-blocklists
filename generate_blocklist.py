@@ -34,12 +34,12 @@ class CategoryConfig:
         return self.config.get("sources", [])
 
     @property
-    def whitelist(self) -> List[Dict]:
-        return self.config.get("whitelist", [])
+    def whitelist(self) -> List[str]:
+        return self.config.get("whitelist", []) or []
 
     @property
-    def manual_entries(self) -> List[Dict]:
-        return self.config.get("manual_entries", [])
+    def manual_entries(self) -> List[str]:
+        return self.config.get("manual_entries", []) or []
 
 
 class DomainProcessor:
