@@ -6,7 +6,12 @@ on:
     - cron: "0 6 * * *"
   push:
     branches: [main]
-    paths: ["sources.txt", ".github/workflows/generate.yml"]
+    paths:
+      [
+        "categories/*/config.yml",
+        "repo-config.yml",
+        ".github/workflows/generate.yml",
+      ]
   workflow_dispatch:
 
 jobs:

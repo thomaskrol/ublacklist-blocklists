@@ -1,0 +1,7 @@
+home: https://github.com/thomaskrol/ublacklist-blocklists
+issues: https://github.com/thomaskrol/ublacklist-blocklists/issues
+raw_base: https://raw.githubusercontent.com/thomaskrol/ublacklist-blocklists/main
+
+categories:
+  - config: categories/nsfw/config.yml
+    output: nsfw/blocklist.txt

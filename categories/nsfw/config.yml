@@ -1,0 +1,23 @@
+metadata:
+  name: uBlacklist NSFW blocklist
+  description: A uBlacklist blocklist to remove NSFW websites from your search results.
+  author: Thomas Krol <thomaskrol22@pm.me>
+  license: MIT
+  update_frequency: 7 days
+
+sources:
+  - name: "Energized Protection's NSFW domains list"
+    url: https://energized.pro/nsfw/domains.txt
+    type: domain
+    
+  - name: "Blocklist Project's Porn No IP list"
+    url: https://blocklistproject.github.io/Lists/alt-version/porn-nl.txt
+    type: domain
+    
+  - name: "CyanideBrother's anti-pr0n hosts list"
+    url: https://raw.githubusercontent.com/CyanideBrother/anti-pr0n/refs/heads/master/hosts
+    type: hosts
+    
+  - name: "OISD's NSFW domains (wildcards) without * list"
+    url: https://nsfw.oisd.nl/domainswild2
+    type: domain

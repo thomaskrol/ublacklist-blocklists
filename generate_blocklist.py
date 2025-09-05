@@ -1,15 +1,37 @@
 #!/usr/bin/env python3
 """
-uBlacklist Generator Script
-Processes multiple source formats and generates optimized uBlacklist subscription file
+uBlacklist Multi-Category Generator Script
+Processes multiple categories with metadata headers
 """
 
 import re
 import requests
+import json
+import yaml
 from urllib.parse import urlparse
 from collections import defaultdict
-from typing import Set, List, Dict
+from typing import Set, List, Dict, Optional
+from datetime import datetime, timezone
 import argparse
+import os
+from pathlib import Path
+
+
+class CategoryConfig:
+    def __init__(self, config_path: str):
+        with open(config_path, "r") as f:
+            if config_path.endswith(".json"):
+                self.config = json.load(f)
+            else:  # YAML
+                self.config = yaml.safe_load(f)
+
+    @property
+    def metadata(self) -> Dict:
+        return self.config.get("metadata", {})
+
+    @property
+    def sources(self) -> List[Dict]:
+        return self.config.get("sources", [])
 
 
 class DomainProcessor:
@@ -37,12 +59,6 @@ class DomainProcessor:
         # Remove port numbers
         domain = domain.split(":")[0]
         return domain
-
-    def is_subdomain(self, domain: str, potential_parent: str) -> bool:
-        """Check if domain is a subdomain of potential_parent"""
-        if domain == potential_parent:
-            return False
-        return domain.endswith("." + potential_parent)
 
     def find_common_suffix(self, domains: List[str]) -> str:
         """Find the longest common suffix amongst domains"""
@@ -138,62 +154,118 @@ def fetch_source(url: str) -> str:
         return ""
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate uBlacklist subscription file"
-    )
-    parser.add_argument("--output", "-o", default="blocklist.txt", help="Output file")
-    parser.add_argument(
-        "--sources", required=True, help="Path to sources configuration file"
-    )
-    args = parser.parse_args()
+def generate_header(config: CategoryConfig, entry_count: int, repo_info: Dict) -> str:
+    """Generate the blocklist header with metadata"""
+    metadata = config.metadata
+    now = datetime.now(timezone.utc).isoformat()
 
-    # Example sources configuration format:
-    # Each line: URL,TYPE where TYPE is 'hosts' or 'domain'
-    sources = []
-    try:
-        with open(args.sources, "r") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    parts = line.split(",")
-                    if len(parts) == 2:
-                        sources.append((parts[0].strip(), parts[1].strip()))
-    except FileNotFoundError:
-        print(f"Sources file {args.sources} not found")
-        return 1
+    # YAML front matter
+    header = "---\n"
+    header += f"name: {metadata.get('name', 'uBlacklist blocklist')}\n"
+    header += f"description: {metadata.get('description', 'A uBlacklist blocklist')}\n"
+    header += f"home: {repo_info.get('home', 'https://github.com/user/repo')}\n"
+    header += "---\n\n"
 
+    # Comments section
+    header += f"# report a false positive:  {repo_info.get('issues', 'https://github.com/user/repo/issues')}\n"
+    header += f"# author:                   {metadata.get('author', 'Unknown')}\n"
+    header += f"# url:                      {repo_info.get('raw_url', '')}\n"
+    header += f"# licence:                  {metadata.get('license', 'MIT')}\n"
+    header += f"# entries:                  {entry_count:,}\n"
+    header += (
+        f"# update frequency:         {metadata.get('update_frequency', '1 day')}\n"
+    )
+    header += f"# last modified:            {now}\n"
+    header += "# sources (re-formatted for uBlacklist):\n"
+
+    for source in config.sources:
+        name = source.get("name", source["url"])
+        url = source["url"]
+        header += f"#   {name}: {url}\n"
+
+    header += "\n"
+    return header
+
+
+def process_category(category_path: str, output_path: str, repo_info: Dict) -> int:
+    """Process a single category"""
+    print(f"Processing category: {category_path}")
+
+    config = CategoryConfig(category_path)
     processor = DomainProcessor()
     all_domains = set()
 
     # Process each source
-    for url, source_type in sources:
-        print(f"Processing {url} ({source_type})")
+    for source in config.sources:
+        url = source["url"]
+        source_type = source["type"]
+        name = source.get("name", url)
+
+        print(f"  Processing {name} ({source_type})")
         content = fetch_source(url)
         if content:
             domains = processor.process_source(content, source_type)
             all_domains.update(domains)
-            print(f"  Found {len(domains)} domains")
+            print(f"    Found {len(domains)} domains")
 
-    print(f"Total domains before optimisation: {len(all_domains)}")
+    print(f"  Total domains before optimisation: {len(all_domains)}")
 
     # Optimise domains
     optimised_domains = processor.optimise_domains(all_domains)
-    print(f"Total domains after optimisation: {len(optimised_domains)}")
+    print(f"  Total domains after optimisation: {len(optimised_domains)}")
 
     # Convert to uBlacklist format and sort
     ublacklist_entries = []
     for domain in sorted(optimised_domains):
         ublacklist_entries.append(processor.format_for_ublacklist(domain))
 
+    # Generate header
+    header = generate_header(config, len(ublacklist_entries), repo_info)
+
     # Write output
-    with open(args.output, "w") as f:
-        f.write("# uBlacklist subscription file\n")
-        f.write("# Generated automatically\n\n")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        f.write(header)
         for entry in ublacklist_entries:
             f.write(entry + "\n")
 
-    print(f"Generated {args.output} with {len(ublacklist_entries)} entries")
+    print(f"  Generated {output_path} with {len(ublacklist_entries)} entries")
+    return len(ublacklist_entries)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate uBlacklist subscription files"
+    )
+    parser.add_argument(
+        "--config", default="repo-config.yml", help="Repository configuration file"
+    )
+    args = parser.parse_args()
+
+    # Load repository configuration
+    with open(args.config, "r") as f:
+        repo_config = yaml.safe_load(f)
+
+    total_entries = 0
+
+    # Process each category
+    for category in repo_config["categories"]:
+        config_path = category["config"]
+        output_path = category["output"]
+
+        # Build repo info for this category
+        repo_info = {
+            "home": repo_config.get("home", ""),
+            "issues": repo_config.get("issues", ""),
+            "raw_url": f"{repo_config.get('raw_base', '')}/{output_path}",
+        }
+
+        entries = process_category(config_path, output_path, repo_info)
+        total_entries += entries
+
+    print(
+        f"\nGenerated {len(repo_config['categories'])} categories with {total_entries:,} total entries"
+    )
     return 0
 
 
