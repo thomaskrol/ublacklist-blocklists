@@ -53,13 +53,12 @@ jobs:
           path: generate.log
 
       - name: Commit and push if changed
+        env:
+          GIT_AUTHOR_NAME: GitHub Action
+          GIT_AUTHOR_EMAIL: action@github.com
         run: |
-          env:
-            GIT_AUTHOR_NAME: GitHub Action
-            GIT_AUTHOR_EMAIL: action@github.com
-          run: |
-            git config --local user.email "$GIT_AUTHOR_EMAIL"
-            git config --local user.name "$GIT_AUTHOR_NAME"
+          git config --local user.email "$GIT_AUTHOR_EMAIL"
+          git config --local user.name "$GIT_AUTHOR_NAME"
 
           # Extract every 'output:' value from repo-config.yml
           mapfile -t BLOCKLIST_FILES < <(yq eval '.categories[].output' repo-config.yml)
