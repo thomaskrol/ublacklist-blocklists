@@ -241,6 +241,12 @@ def process_category(category_path: str, output_path: str, repo_info: Dict) -> i
         all_domains.update(manual_entries)
         print(f"  Added {len(manual_entries)} manual entries")
 
+    print(f"  Total domains before optimisation: {len(all_domains)}")
+
+    # Optimise domains
+    optimised_domains = processor.optimise_domains(all_domains)
+    print(f"  Total domains after optimisation: {len(optimised_domains)}")
+
     print(f"  Total domains before whitelist: {len(all_domains)}")
 
     # Apply whitelist
@@ -249,12 +255,6 @@ def process_category(category_path: str, output_path: str, repo_info: Dict) -> i
         print(f"  Applying whitelist with {len(whitelist)} entries")
         all_domains = processor.apply_whitelist(all_domains, whitelist)
         print(f"  Total domains after whitelist: {len(all_domains)}")
-
-    print(f"  Total domains before optimisation: {len(all_domains)}")
-
-    # Optimise domains
-    optimised_domains = processor.optimise_domains(all_domains)
-    print(f"  Total domains after optimisation: {len(optimised_domains)}")
 
     # Convert to uBlacklist format and sort
     ublacklist_entries = []
