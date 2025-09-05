@@ -17,10 +17,6 @@ sources:
   - name: "CyanideBrother's anti-pr0n hosts list"
     url: https://raw.githubusercontent.com/CyanideBrother/anti-pr0n/refs/heads/master/hosts
     type: hosts
-    
-  - name: "OISD's NSFW domains (wildcards) without * list"
-    url: https://nsfw.oisd.nl/domainswild2
-    type: domain
 
 whitelist:
   - reddit.com
