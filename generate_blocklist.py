@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import argparse
 import os
 from pathlib import Path
+from time import sleep
 
 
 class CategoryConfig:
@@ -150,15 +151,18 @@ class DomainProcessor:
         return domains
 
 
-def fetch_source(url: str) -> str:
-    """Fetch content from URL"""
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        return response.text
-    except Exception as e:
-        print(f"Error fetching {url}: {e}")
-        return ""
+def fetch_source(url: str, retries: int = 3, backoff: float = 2.0) -> str:
+    """Fetch content with simple exponential back-off"""
+    for attempt in range(1, retries + 1):
+        try:
+            response = requests.get(url, timeout=60)
+            response.raise_for_status()
+            return response.text
+        except Exception as e:
+            print(f"[Attempt {attempt}] Error fetching {url}: {e}")
+            if attempt == retries:
+                return ""
+            sleep(backoff**attempt)  # wait longer each retry
 
 
 def generate_header(config: CategoryConfig, entry_count: int, repo_info: Dict) -> str:
