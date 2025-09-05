@@ -247,14 +247,14 @@ def process_category(category_path: str, output_path: str, repo_info: Dict) -> i
     optimised_domains = processor.optimise_domains(all_domains)
     print(f"  Total domains after optimisation: {len(optimised_domains)}")
 
-    print(f"  Total domains before whitelist: {len(all_domains)}")
+    print(f"  Total domains before whitelist: {len(optimised_domains)}")
 
     # Apply whitelist
     whitelist = set(config.whitelist)
     if whitelist:
         print(f"  Applying whitelist with {len(whitelist)} entries")
-        all_domains = processor.apply_whitelist(all_domains, whitelist)
-        print(f"  Total domains after whitelist: {len(all_domains)}")
+        optimised_domains = processor.apply_whitelist(optimised_domains, whitelist)
+        print(f"  Total domains after whitelist: {len(optimised_domains)}")
 
     # Convert to uBlacklist format and sort
     ublacklist_entries = []
