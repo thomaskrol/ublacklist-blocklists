@@ -25,3 +25,5 @@ sources:
 whitelist:
   - reddit.com
   - tumblr.com
+
+manual_entries:

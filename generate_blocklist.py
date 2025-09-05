@@ -194,7 +194,7 @@ def process_category(category_path: str, output_path: str, repo_info: Dict) -> i
     processor = DomainProcessor()
     all_domains = set()
 
-    # Process each source
+    # Process automated sources
     for source in config.sources:
         url = source["url"]
         source_type = source["type"]
@@ -206,6 +206,17 @@ def process_category(category_path: str, output_path: str, repo_info: Dict) -> i
             domains = processor.process_source(content, source_type)
             all_domains.update(domains)
             print(f"    Found {len(domains)} domains")
+
+    # Add manual entries
+    manual_entries = set()
+    for entry in config.manual_entries:
+        normalised = processor.normalise_domain(entry)
+        if normalised and "." in normalised:
+            manual_entries.add(normalised)
+
+    if manual_entries:
+        all_domains.update(manual_entries)
+        print(f"  Added {len(manual_entries)} manual entries")
 
     print(f"  Total domains before whitelist: {len(all_domains)}")
 
