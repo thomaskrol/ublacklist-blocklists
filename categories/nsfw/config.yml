@@ -21,3 +21,7 @@ sources:
   - name: "OISD's NSFW domains (wildcards) without * list"
     url: https://nsfw.oisd.nl/domainswild2
     type: domain
+
+whitelist:
+  - reddit.com
+  - tumblr.com

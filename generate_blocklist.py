@@ -119,7 +119,6 @@ class DomainProcessor:
 
     def format_for_ublacklist(self, domain: str) -> str:
         """Convert domain to uBlacklist format"""
-        # For most domains, use wildcard subdomain format
         return f"*://*.{domain}/*"
 
     def process_source(self, content: str, source_type: str) -> Set[str]:
@@ -207,6 +206,15 @@ def process_category(category_path: str, output_path: str, repo_info: Dict) -> i
             domains = processor.process_source(content, source_type)
             all_domains.update(domains)
             print(f"    Found {len(domains)} domains")
+
+    print(f"  Total domains before whitelist: {len(all_domains)}")
+
+    # Apply whitelist
+    whitelist = set(config.whitelist)
+    if whitelist:
+        print(f"  Applying whitelist with {len(whitelist)} entries")
+        all_domains = processor.apply_whitelist(all_domains, whitelist)
+        print(f"  Total domains after whitelist: {len(all_domains)}")
 
     print(f"  Total domains before optimisation: {len(all_domains)}")
 
