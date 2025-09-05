@@ -157,7 +157,7 @@ class DomainProcessor:
             try:
                 whitelisted.remove(entry)
             except Exception as e:
-                print(f"Whitelisted entry {e} doesn't exist in root list")
+                print(f"    Whitelisted entry {e} doesn't exist in root list")
 
         return list
 
