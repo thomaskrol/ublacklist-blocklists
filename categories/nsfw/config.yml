@@ -2,7 +2,7 @@ metadata:
   name: Thomas Krol's uBlacklist NSFW blocklist
   description: A uBlacklist blocklist to remove NSFW websites from your search results.
   author: Thomas Krol <thomaskrol22@pm.me>
-  license: MIT
+  license: GPL-3.0 license
   update_frequency: 7 days
 
 sources:
