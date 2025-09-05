@@ -29,11 +29,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests
+          python -m pip install --upgrade pip
+          pip install requests PyYAML
 
       - name: Generate blocklist
         run: |
-          python generate_blocklist.py --sources sources.txt --output blocklist.txt
+          python generate_blocklist.py --config repo-config.yml
 
       - name: Commit and push if changed
         run: |
