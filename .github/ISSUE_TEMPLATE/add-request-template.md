@@ -1,7 +1,7 @@
 ---
-name: add request template
+name: Add request template
 about: Request for a URL to be added to a category's list
-title: ''
+title: Add your_domain_here to category_to_update_here
 labels: add request
 assignees: thomaskrol
 

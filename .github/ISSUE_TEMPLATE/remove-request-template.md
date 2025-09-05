@@ -1,7 +1,7 @@
 ---
-name: remove request template
+name: Remove request template
 about: Request for a URL to be removed from a category's list
-title: ''
+title: Remove your_domain_here from category_to_update_here
 labels: remove request
 assignees: thomaskrol
 
