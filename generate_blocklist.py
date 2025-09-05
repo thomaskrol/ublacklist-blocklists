@@ -33,6 +33,14 @@ class CategoryConfig:
     def sources(self) -> List[Dict]:
         return self.config.get("sources", [])
 
+    @property
+    def whitelist(self) -> List[Dict]:
+        return self.config.get("whitelist", [])
+
+    @property
+    def manual_entries(self) -> List[Dict]:
+        return self.config.get("manual_entries", [])
+
 
 class DomainProcessor:
     def __init__(self):
