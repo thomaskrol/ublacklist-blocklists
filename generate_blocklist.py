@@ -150,6 +150,17 @@ class DomainProcessor:
 
         return domains
 
+    def apply_whitelist(self, list: Set[str], whitelist: Set[str]) -> Set[str]:
+        """Remove whitelisted entries from a list"""
+        whitelisted = list
+        for entry in whitelist:
+            try:
+                whitelisted.remove(entry)
+            except Exception as e:
+                print(f"Whitelisted entry {e} doesn't exist in root list")
+
+        return list
+
 
 def fetch_source(url: str, retries: int = 3, backoff: float = 2.0) -> str:
     """Fetch content with simple exponential back-off"""
