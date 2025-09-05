@@ -38,6 +38,20 @@ jobs:
         run: |
           python generate_blocklist.py --config repo-config.yml
 
+      - name: List generated files
+        run: |
+          echo "=== pwd ==="
+          pwd
+          echo "=== ls -R ==="
+          ls -R
+
+      - name: Upload generation log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generate-log
+          path: generate.log
+
       - name: Commit and push if changed
         run: |
           env:
