@@ -10,7 +10,7 @@ home: https://github.com/thomaskrol/ublacklist-blocklists
 # licence:                  GPL-3.0 license
 # entries:                  303,680
 # update frequency:         7 days
-# last modified:            2026-02-24T06:18:46.215585+00:00
+# last modified:            2026-03-03T06:13:07.378719+00:00
 # sources (re-formatted for uBlacklist):
 #   Energized Protection's NSFW domains list: https://energized.pro/nsfw/domains.txt
 #   Blocklist Project's Porn No IP list: https://blocklistproject.github.io/Lists/alt-version/porn-nl.txt
